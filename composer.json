@@ -1,0 +1,22 @@
+{
+    "name": "dotzecker/larafeed",
+    "description": "Feed (Atom and RSS) generator for Laravel 4",
+    "authors": [
+        {
+            "name": "Rafael Antonio Gómez Casas",
+            "email": "dotzecker@gmail.com",
+            "role": "Developer",
+            "homepage": "http://rafa.im"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.0.x"
+    },
+    "autoload": {
+        "psr-0": {
+            "DotZecker\\Larafeed": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
