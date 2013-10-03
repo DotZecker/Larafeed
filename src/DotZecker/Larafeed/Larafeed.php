@@ -28,46 +28,59 @@ class Larafeed {
 
     public $entries = array();
 
-    protected $types = array(
+    protected $contentTypes = array(
         'atom' => 'application/atom+xml',
         'rss'  => 'application/rss+xml'
     );
 
-    public $type = 'atom';
+    public $contentType = 'atom';
 
 
-    public function __construct($type = null)
+    public function __construct($contentType = null)
     {
-        if ($type == 'rss') $this->type = $type;
+        if ($contentType == 'rss') $this->contentType = $contentType;
     }
 
-    public function make($type = null)
+    public function make($contentType = null)
     {
-        return new Larafeed($type);
+        return new Larafeed($contentType);
     }
 
     public function addEntry(Entry $entry)
     {
-        if ($entry->isCorrect()) $this->entries[] = $entry;
+        if ($entry->isCorrect()) $this->entries[] = $entry->autoComplete();
     }
 
     public function render()
+    {
+        // @todo: Feed validation
+
+        // Fill the empty attributes
+        $this->autoComplete();
+
+        return Response::make(
+            View::make('larafeed::' . $this->contentType, array('feed' => $this)),
+            200,
+            array('Content-Type' => $this->getContentType() . '; charset=' . $this->charset)
+        );
+
+    }
+
+    public function autoComplete()
     {
         if (is_null($this->lang)) $this->lang = Config::get('application.language');
 
         if (is_null($this->link)) $this->link = URL::to('/'); // We assume that is home
 
         if (is_null($this->pubdate)) {
-            $method = 'to' . strtolower($this->type) . 'String';
+            $method = 'to' . strtolower($this->contentType) . 'String';
             $this->pubDate = Carbon::parse('now')->{$method}();
         }
+    }
 
-        $feed = array(
-
-        );
-
-        // @todo: Feed validation
-
+    public function getContentType()
+    {
+        return $this->contentTypes[$this->contentType];
     }
 
 }
