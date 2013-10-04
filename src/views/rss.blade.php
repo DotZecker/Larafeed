@@ -1,30 +1,30 @@
-{{ '<?xml version="1.0" encoding="UTF-8" ?>'."\n" }}
+<?xml version="1.0" encoding="UTF-8" ?>
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
-        <title><![CDATA[{{ $channel['title'] }}]]></title>
-        <link>{{ $channel['link'] }}</link>
-        <description><![CDATA[{{ $channel['description'] }}]]></description>
-        <atom:link href="{{ Request::url() }}" rel="self"></atom:link>
+        <title>{{ $feed->title }}</title>
+        <link>{{ $feed->link }}</link>
+        <description>{{ $feed->description }}</description>
+        <atom:link href="{{ $feed->feedLink }}" rel="self"></atom:link>
 
-        @if ( ! empty($channel['logo']))
+        @if (isset($feed->logo))
             <image>
-                <url>{{ $channel['logo'] }}</url>
-                <title><![CDATA[{{ $channel['title'] }}]]></title>
-                <link>{{ $channel['link'] }}</link>
+                <title>{{ $feed->title }}</title>
+                <link>{{ $feed->link }}</link>
+                <url>{{ $feed->logo }}</url>
             </image>
         @endif
 
-        <language>{{ $channel['lang'] }}</language>
-        <lastBuildDate>{{ date('D, d M Y H:i:s O', strtotime($channel['pubdate'])) }}</lastBuildDate>
+        <language>{{ $feed->lang }}</language>
+        <lastBuildDate>{{ $feed->pubDate }}</lastBuildDate>
 
-        @foreach($items as $item)
+        @foreach($feed->entries as $item)
             <item>
-                <title><![CDATA[{{ $item['title'] }}]]></title>
-                <link>{{ $item['link'] }}</link>
-                <guid isPermaLink="true">{{ $item['link'] }}</guid>
-                <description><![CDATA[{{ $item['description'] }}]]></description>
-                <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">{{ $item['author'] }}</dc:creator>
-                <pubDate>{{ date('D, d M Y H:i:s O', strtotime($item['pubdate'])) }}</pubDate>
+                <title>{{ $item->title }}</title>
+                <link>{{ $item->link }}</link>
+                <guid isPermaLink="true">{{ $item->link }}</guid>
+                <description><![CDATA[{{ $item->content }}]]></description>
+                <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">{{ $item->author }}</dc:creator>
+                <pubDate>{{ $item->pubDate}}</pubDate>
             </item>
         @endforeach
     </channel>
