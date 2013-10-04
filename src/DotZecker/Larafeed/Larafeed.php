@@ -66,12 +66,13 @@ class Larafeed {
         $this->entries[] = $entry->autoComplete($this->contentType);
     }
 
-    public function addAuthor($name, $email = null)
+    public function addAuthor($name, $email = null, $uri = null)
     {
         $author = array('name' => $name);
         if ( ! is_null($email)) $author['email'] = $email;
+        if ( ! is_null($uri))   $author['uri']   = $uri;
 
-        $this->authors[] = $author;
+        $this->authors[] = (object) $author;
     }
 
     public function render()
@@ -92,11 +93,14 @@ class Larafeed {
         if (is_null($this->lang)) $this->lang = Config::get('app.locale');
         if (is_null($this->link)) $this->link = URL::to('/'); // We assume that is home
         if (is_null($this->feedLink)) $this->feedLink = URL::full();
-
         if (is_null($this->pubDate)) {
             $method = 'to' . strtolower($this->contentType) . 'String';
             $this->pubDate = Carbon::parse('now')->{$method}();
         }
+        $this->title = strip_tags($this->title);
+        $this->description = strip_tags($this->description);
+
+
     }
 
     public function getContentType()

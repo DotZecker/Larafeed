@@ -12,7 +12,11 @@ class Entry {
 
     public $pubDate;
 
-    public $content; // Description
+    public $update;
+
+    public $summary;
+
+    public $content;
 
 
     public function __construct($title = null, $link = null, $author = null, $pubDate = null, $content = null, $contentType = 'atom')
@@ -33,6 +37,13 @@ class Entry {
             $method = 'to' . strtolower($contentType) . 'String';
             $this->pubDate = Carbon::parse('now')->{$method}();
         }
+
+        if (is_null($this->summary)) {
+            $summary = strip_tags($this->content);
+            $this->summary = substr($summary, 0, 144) . '...';
+        }
+
+        $this->title = strip_tags($this->title);
 
         return $this;
     }
