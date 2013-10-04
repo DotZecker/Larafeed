@@ -1,5 +1,9 @@
 <?php namespace DotZecker\Larafeed;
 
+use URL;
+use View;
+use Config;
+use Response;
 use Carbon\Carbon;
 
 class Larafeed {
@@ -10,13 +14,13 @@ class Larafeed {
 
     public $title;
 
-    public $subtitle;    // Description
+    public $description; // Subtitle
 
     public $pubDate;
 
     public $link;
 
-    public $rssLink;
+    public $feedLink;
 
     public $logo;
 
@@ -46,9 +50,28 @@ class Larafeed {
         return new Larafeed($contentType);
     }
 
-    public function addEntry(Entry $entry)
+    public function Entry($title = null, $link = null, $author = null, $pubDate = null, $content = null)
     {
-        if ($entry->isCorrect()) $this->entries[] = $entry->autoComplete();
+        return new Entry($title, $link, $author, $pubDate, $content, $this->contentType);
+    }
+
+    public function setEntry(Entry $entry)
+    {
+        $this->entries[] = $entry->autoComplete($this->contentType);
+    }
+
+    public function addEntry($title = null, $link = null, $author = null, $pubDate = null, $content = null)
+    {
+        $entry = new Entry($title, $link, $author, $pubDate, $content, $this->contentType);
+        $this->entries[] = $entry->autoComplete($this->contentType);
+    }
+
+    public function addAuthor($name, $email = null)
+    {
+        $author = array('name' => $name);
+        if ( ! is_null($email)) $author['email'] = $email;
+
+        $this->authors[] = $author;
     }
 
     public function render()
@@ -58,21 +81,19 @@ class Larafeed {
         // Fill the empty attributes
         $this->autoComplete();
 
-        return Response::make(
-            View::make('larafeed::' . $this->contentType, array('feed' => $this)),
-            200,
-            array('Content-Type' => $this->getContentType() . '; charset=' . $this->charset)
-        );
+        return Response::make(View::make("larafeed::{$this->contentType}", array('feed' => $this)), 200, array(
+                'Content-Type' => "{$this->getContentType()}; charset={$this->charset}"
+        ));
 
     }
 
-    public function autoComplete()
+    protected function autoComplete()
     {
-        if (is_null($this->lang)) $this->lang = Config::get('application.language');
-
+        if (is_null($this->lang)) $this->lang = Config::get('app.locale');
         if (is_null($this->link)) $this->link = URL::to('/'); // We assume that is home
+        if (is_null($this->feedLink)) $this->feedLink = URL::full();
 
-        if (is_null($this->pubdate)) {
+        if (is_null($this->pubDate)) {
             $method = 'to' . strtolower($this->contentType) . 'String';
             $this->pubDate = Carbon::parse('now')->{$method}();
         }
