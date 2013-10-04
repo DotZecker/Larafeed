@@ -7,6 +7,7 @@ use Response;
 use Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use DotZecker\Larafeed\Exceptions\LarafeedException;
 
 class Larafeed {
 
@@ -42,12 +43,16 @@ class Larafeed {
     public $format = 'atom';
 
     /**
-     * Set the format and instance authors and entries
+     * Set the format, fill attributes and instance authors and entries
      * @param string $format
      */
-    public function __construct($format = null)
+    public function __construct($format = null, array $data = array())
     {
         if ($format == 'rss') $this->format = $format;
+
+        foreach ($data as $attribute => $value) {
+            $this->{$attribute} = $value;
+        }
 
         $this->authors = new Collection();
         $this->entries = new Collection();
@@ -58,9 +63,9 @@ class Larafeed {
      * @param  string $format
      * @return Larafeed
      */
-    public function make($format = null)
+    public function make($format = null, array $data = array())
     {
-        return new Larafeed($format);
+        return new Larafeed($format, $data);
     }
 
     /**
