@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="{{ $feed->charset }}" ?>
+{{ '<?xml version="1.0" encoding="' . $feed->charset . '" ?>'."\n" }}
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>{{ $feed->link }}</id>
     <title type="text" xml:lang="{{ $feed->lang }}">{{ $feed->title }}</title>
