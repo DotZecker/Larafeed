@@ -100,7 +100,6 @@ class Larafeed {
         $this->title = strip_tags($this->title);
         $this->description = strip_tags($this->description);
 
-
     }
 
     public function getContentType()
