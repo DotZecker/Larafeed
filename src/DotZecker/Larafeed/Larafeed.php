@@ -5,6 +5,7 @@ use View;
 use Config;
 use Response;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class Larafeed {
 
@@ -28,84 +29,104 @@ class Larafeed {
 
     public $rights;
 
-    public $authors = array();
+    public $authors;
 
-    public $entries = array();
+    public $entries;
 
     protected $contentTypes = array(
         'atom' => 'application/atom+xml',
         'rss'  => 'application/rss+xml'
     );
 
-    public $contentType = 'atom';
+    public $format = 'atom';
 
 
-    public function __construct($contentType = null)
+    public function __construct($format = null)
     {
-        if ($contentType == 'rss') $this->contentType = $contentType;
+        if ($format == 'rss') $this->format = $format;
+
+        $this->authors = new Collection();
+        $this->entries = new Collection();
     }
 
-    public function make($contentType = null)
+    public function make($format = null)
     {
-        return new Larafeed($contentType);
+        return new Larafeed($format);
     }
 
-    public function Entry($title = null, $link = null, $author = null, $pubDate = null, $content = null)
+    public function Entry(array $data = array())
     {
-        return new Entry($title, $link, $author, $pubDate, $content, $this->contentType);
+        return new Entry($data);
     }
 
     public function setEntry(Entry $entry)
     {
-        $this->entries[] = $entry->autoComplete($this->contentType);
+        $entry->format = $this->format;
+        $entry->prepare();
+
+        $this->entries->push($entry);
     }
 
-    public function addEntry($title = null, $link = null, $author = null, $pubDate = null, $content = null)
+    public function addEntry(array $data = array())
     {
-        $entry = new Entry($title, $link, $author, $pubDate, $content, $this->contentType);
-        $this->entries[] = $entry->autoComplete($this->contentType);
+        $entry = new Entry($data);
+
+        if ($entry->isValid())
+            $this->setEntry($entry);
     }
 
-    public function addAuthor($name, $email = null, $uri = null)
+    public function addAuthor($author)
     {
-        $author = array('name' => $name);
-        if ( ! is_null($email)) $author['email'] = $email;
-        if ( ! is_null($uri))   $author['uri']   = $uri;
+        if ( ! is_array($author)) $author = array('name' => $author);
 
-        $this->authors[] = (object) $author;
+        $this->authors->push((object) $author);
     }
 
     public function render()
     {
-        // @todo: Feed validation
+        $this->prepare();
 
-        // Fill the empty attributes
-        $this->autoComplete();
-
-        return Response::make(View::make("larafeed::{$this->contentType}", array('feed' => $this)), 200, array(
+        return Response::make(View::make("larafeed::{$this->format}", array('feed' => $this)), 200, array(
                 'Content-Type' => "{$this->getContentType()}; charset={$this->charset}"
         ));
 
     }
 
-    protected function autoComplete()
+    protected function prepare()
     {
-        if (is_null($this->lang)) $this->lang = Config::get('app.locale');
-        if (is_null($this->link)) $this->link = URL::to('/'); // We assume that is home
-        if (is_null($this->feedLink)) $this->feedLink = URL::full();
-        if (is_null($this->pubDate)) {
-            $method = 'to' . strtolower($this->contentType) . 'String';
-            $this->pubDate = Carbon::parse('now')->{$method}();
+        // Feed validation
+
+        if ( ! is_null($this->pubDate)) {
+            $method = 'to' . strtolower($this->format) . 'String';
+            $this->pubDate = Carbon::parse($this->pubDate)->{$method}();
         }
+
+        // Fill the empty attributes
+        $this->autoFill();
+
+        // We ensure that it's plain text
         $this->title = strip_tags($this->title);
         $this->description = strip_tags($this->description);
+    }
 
+    protected function autoFill()
+    {
+        if (is_null($this->lang)) $this->lang = Config::get('app.locale');
+
+        if (is_null($this->link)) $this->link = URL::to('/');
+
+        if (is_null($this->feedLink)) $this->feedLink = URL::full();
+
+        if (is_null($this->pubDate)) {
+            $method = 'to' . strtolower($this->format) . 'String';
+            $this->pubDate = Carbon::parse('now')->{$method}();
+        }
 
     }
 
     public function getContentType()
     {
-        return $this->contentTypes[$this->contentType];
+        return $this->contentTypes[$this->format];
     }
 
 }
