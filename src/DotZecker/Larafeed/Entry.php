@@ -89,12 +89,12 @@ class Entry {
         $data = get_object_vars($this);
 
         $rules = array(
-            'format'      => 'required|in:atom,rss',
-            'link'        => 'required|url',
-            'title'       => 'required',
-            'pubDate'     => 'required|date',
-            'author'      => 'required',
-            'content'     => 'required'
+            'format'  => 'required|in:atom,rss',
+            'link'    => 'required|url',
+            'title'   => 'required',
+            'pubDate' => 'required|date',
+            'author'  => 'required',
+            'content' => 'required'
         );
 
         if (isset($this->updated)) $rules['updated'] = 'date';
