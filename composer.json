@@ -1,6 +1,8 @@
 {
     "name": "dotzecker/larafeed",
     "description": "Feed (Atom and RSS) generator for Laravel 4",
+    "keywords": ["laravel", "feed", "atom", "rss"],
+    "license": "MIT",
     "authors": [
         {
             "name": "Rafael Antonio Gómez Casas",
@@ -18,5 +20,5 @@
             "DotZecker\\Larafeed": "src/"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
