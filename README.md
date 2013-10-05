@@ -31,6 +31,7 @@ Finally, you have to add the alias in the aliases array.
 It is very intuitive of use, first, we need to instantiate the class (Note that the first argument is the format: atom or rss).
 ```php
 $feed = Feed::make('atom', array(
+    'title' => 'My cool blog about my super afro hair',
     'link'  => URL::to('/'),
     'logo'  => asset('images/logo.png'),
     'icon'  => asset('favicon.ico'),
@@ -41,7 +42,8 @@ $feed = Feed::make('atom', array(
 Or, if you prefer, you can fill it attribute by attribute:
 ```php
 $feed = Feed::make('atom');
-$feed->link = URL::to('/');
+$feed->title = 'My cool blog about my super afro hair';
+$feed->link  = URL::to('/');
 $feed->description = "I don't say 'Hello World', the World says 'Hello Rafa' to me!";
 ```
 
