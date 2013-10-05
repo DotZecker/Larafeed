@@ -28,7 +28,7 @@ Finally, you have to add the alias in the aliases array.
 
 
 ## Usage
-It is very intuitive of use:
+It is very intuitive of use, first, we need to instantiate the class (Note that the first argument is the format: atom or rss).
 ```php
 $feed = Feed::make('atom', array(
     'link'  => URL::to('/'),
@@ -38,24 +38,25 @@ $feed = Feed::make('atom', array(
 ));
 ```
 
-Or, if you prefer, you can fill attribute by attribute:
+Or, if you prefer, you can fill it attribute by attribute:
 ```php
 $feed = Feed::make('atom');
 $feed->link = URL::to('/');
 $feed->description = "I don't say 'Hello World', the World says 'Hello Rafa' to me!";
 ```
 
-You can add authors only with the name or with more info
+
+Then, you can add author(s)
 ```php
 // Only with the name
 $feed->addAuthor('Rafael Antonio');
 
 // With full info
-$feed->addAuthor(array('name' => 'Rafael', 'email' => 'mail@provider.foo', 'uri' => 'http://rafa.im'));
+$feed->addAuthor(array('name' => 'Rafa', 'email' => 'mail@mail.foo', 'uri' => 'http://rafa.im'));
 ```
 
-Surely this part, in your application, will be inside of a loop.
-You can add the entry by this way:
+
+Now it's turn to add the entries. Surely, in your application, it will be inside of a `foreach` loop.
 ```php
 $feed->addEntry(array(
     'title'   => 'Mi primer post',
@@ -66,14 +67,16 @@ $feed->addEntry(array(
 ));
 ```
 
+
 Or you can fill it attribute by attribute:
 ```php
 $entry = $feed->entry();
 $entry->title = 'My super title';
 $entry->content = '¿Qué tal? :P Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error, aperiam!';
-// ...
+// $entry->...
 $feed->setEntry($entry); // We "inject" the entry
 ```
+
 
 Finally, we return the generated feed
 ```php
