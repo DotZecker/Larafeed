@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use DotZecker\Larafeed\Exceptions\LarafeedException;
 
-class Larafeed {
+class Feed {
 
     public $charset = 'utf-8';
 
@@ -65,7 +65,7 @@ class Larafeed {
      */
     public function make($format = null, array $data = array())
     {
-        return new Larafeed($format, $data);
+        return new self($format, $data);
     }
 
     /**
