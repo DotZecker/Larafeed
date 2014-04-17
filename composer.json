@@ -1,7 +1,7 @@
 {
     "name": "dotzecker/larafeed",
-    "description": "Feed (Atom and RSS) generator for Laravel 4",
-    "keywords": ["laravel", "feed", "atom", "rss"],
+    "description": "Feed (Atom and RSS) generator for PHP",
+    "keywords": ["feed", "generator", "atom", "rss", "laravel"],
     "license": "MIT",
     "authors": [
         {
@@ -15,9 +15,12 @@
         "php": ">=5.3.0",
         "illuminate/support": "4.*"
     },
+    "require-dev": {
+        "phpspec/phpspec": "2.0.*@dev"
+    },
     "autoload": {
-        "psr-0": {
-            "DotZecker\\Larafeed": "src/"
+        "psr-4": {
+            "DotZecker\\Larafeed\\": "src/DotZecker/Larafeed/"
         }
     },
     "minimum-stability": "stable"
