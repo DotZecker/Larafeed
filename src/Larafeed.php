@@ -9,8 +9,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use DotZecker\Larafeed\Exceptions\LarafeedException;
 
-class Larafeed {
-
+class Larafeed
+{
     public $charset = 'utf-8';
 
     public $lang;
@@ -48,7 +48,9 @@ class Larafeed {
      */
     public function __construct($format = null, array $data = array())
     {
-        if ($format == 'rss') $this->format = $format;
+        if ($format == 'rss') {
+            $this->format = $format;
+        }
 
         foreach ($data as $attribute => $value) {
             $this->{$attribute} = $value;
@@ -86,8 +88,9 @@ class Larafeed {
         $entry->format = $this->format;
         $entry->prepare();
 
-        if ($entry->isValid())
+        if ($entry->isValid()) {
             $this->entries->push($entry);
+        }
     }
 
     /**
@@ -108,7 +111,9 @@ class Larafeed {
      */
     public function addAuthor($author)
     {
-        if ( ! is_array($author)) $author = array('name' => $author);
+        if ( ! is_array($author)) {
+            $author = array('name' => $author);
+        }
 
         $this->authors->push((object) $author);
     }
@@ -121,9 +126,13 @@ class Larafeed {
     {
         $this->prepare();
 
+        $view = View::make("larafeed::{$this->format}", array(
+            'feed' => $this
+        ));
+
         // Launch the Atom/RSS view, with 200 status
-        return Response::make(View::make("larafeed::{$this->format}", array('feed' => $this)), 200, array(
-                'Content-Type' => "{$this->getContentType()}; charset={$this->charset}"
+        return Response::make($view, 200, array(
+            'Content-Type' => "{$this->getContentType()}; charset={$this->charset}"
         ));
 
     }
@@ -138,9 +147,9 @@ class Larafeed {
         $dateFormatMethod = 'to' . strtolower($this->format) . 'String';
 
         // Set the good date format to the publication date
-        if ( ! is_null($this->pubDate))
+        if ( ! is_null($this->pubDate)) {
             $this->pubDate = Carbon::parse($this->pubDate)->{$dateFormatMethod}();
-
+        }
 
         // Fill the empty attributes
         $this->autoFill();
@@ -163,18 +172,24 @@ class Larafeed {
         $dateFormatMethod = 'to' . strtolower($this->format) . 'String';
 
         // Set the 'now' date
-        if (is_null($this->pubDate))
+        if (is_null($this->pubDate)) {
             $this->pubDate = Carbon::parse('now')->{$dateFormatMethod}();
+        }
 
         // Set laravel's default lang
-        if (is_null($this->lang)) $this->lang = Config::get('app.locale');
+        if (is_null($this->lang)) {
+            $this->lang = Config::get('app.locale');
+        }
 
         // Set url to homepage (Or whatever it is there)
-        if (is_null($this->link)) $this->link = URL::to('/');
+        if (is_null($this->link)) {
+            $this->link = URL::to('/');
+        }
 
         // Set the feed url
-        // @todo: By config, if put or not GET params
-        if (is_null($this->feedLink)) $this->feedLink = URL::full();
+        if (is_null($this->feedLink)) {
+            $this->feedLink = URL::full();
+        }
 
     }
 
@@ -206,13 +221,19 @@ class Larafeed {
             'link'        => 'required|url'
         );
 
-        if (isset($this->logo)) $rules['logo'] = 'url';
-        if (isset($this->icon)) $rules['icon'] = 'url';
+        if (isset($this->logo)) {
+            $rules['logo'] = 'url';
+        }
+
+        if (isset($this->icon)) {
+            $rules['icon'] = 'url';
+        }
 
         $validator = Validator::make($data, $rules);
 
-        if ($validator->fails())
+        if ($validator->fails()) {
             throw new LarafeedException($validator->errors()->first());
+        }
 
         return true;
     }

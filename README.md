@@ -10,8 +10,7 @@ Feed (Atom and RSS) generator for Laravel 4
 Begin by installing this package through Composer. Edit your project's `composer.json` file to require `dotzecker/larafeed`.
 
     "require": {
-        "laravel/framework": "4.0.*",
-        "dotzecker/larafeed": "dev-master"
+        "dotzecker/larafeed": "1.*"
     },
 
 Next, update Composer from the Terminal:
