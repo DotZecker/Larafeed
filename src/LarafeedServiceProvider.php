@@ -18,7 +18,7 @@ class LarafeedServiceProvider extends ServiceProvider
 	 */
 	public function boot()
 	{
-		$this->package('dotzecker/larafeed');
+		$this->package('dotzecker/larafeed', null, __DIR__);
 	}
 
 	/**
