@@ -19,7 +19,7 @@
         <rights>{{ $feed->rights }}</rights>
     @endif
 
-    @foreach($feed->authors as $author)
+    @foreach ($feed->authors as $author)
         <author>
             <name>{{ $author->name }}</name>
 
@@ -33,7 +33,7 @@
         </author>
     @endforeach
 
-    @foreach($feed->entries as $entry)
+    @foreach ($feed->entries as $entry)
         <entry>
             <id>{{ $entry->link }}</id>
             <title type="text" xml:lang="{{ $feed->lang }}">{{ $entry->title }}</title>

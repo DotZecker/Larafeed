@@ -16,8 +16,8 @@
         "illuminate/support": "4.*"
     },
     "autoload": {
-        "psr-0": {
-            "DotZecker\\Larafeed": "src/"
+        "psr-4": {
+            "DotZecker\\Larafeed\\": "src"
         }
     },
     "minimum-stability": "stable"

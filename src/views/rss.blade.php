@@ -17,14 +17,14 @@
         <language>{{ $feed->lang }}</language>
         <lastBuildDate>{{ $feed->pubDate }}</lastBuildDate>
 
-        @foreach($feed->entries as $item)
+        @foreach ($feed->entries as $item)
             <item>
                 <title>{{ $item->title }}</title>
                 <link>{{ $item->link }}</link>
                 <guid isPermaLink="true">{{ $item->link }}</guid>
                 <description><![CDATA[{{ $item->content }}]]></description>
                 <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">{{ $item->author }}</dc:creator>
-                <pubDate>{{ $item->pubDate}}</pubDate>
+                <pubDate>{{ $item->pubDate }}</pubDate>
             </item>
         @endforeach
     </channel>

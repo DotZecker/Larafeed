@@ -2,8 +2,8 @@
 
 use Illuminate\Support\ServiceProvider;
 
-class LarafeedServiceProvider extends ServiceProvider {
-
+class LarafeedServiceProvider extends ServiceProvider
+{
 	/**
 	 * Indicates if loading of the provider is deferred.
 	 *
@@ -41,7 +41,7 @@ class LarafeedServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return array();
+		return array('larafeed');
 	}
 
 }
