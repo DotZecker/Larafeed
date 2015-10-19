@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="{{ feed.charset }}" ?>
+
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>{{ feed.title }}</title>
+        <link>{{ feed.link }}</link>
+        <description>{{ feed.description }}</description>
+        <atom:link href="{{ feed.feedLink }}" rel="self"></atom:link>
+
+        {% if null != feed.logo %}
+        <image>
+            <title>{{ feed.title }}</title>
+            <link>{{ feed.link }}</link>
+            <url>{{ feed.logo }}</url>
+        </image>
+        {% endif %}
+
+        <language>{{ feed.lang }}</language>
+        <lastBuildDate>{{ feed.pubDate }}</lastBuildDate>
+
+        {% for item in feed.entries %}
+        <item>
+            <title>{{ item.title }}</title>
+            <link>{{ item.link }}</link>
+            <guid isPermaLink="true">{{ item.link }}</guid>
+            <description><![CDATA[{{ item.content }}]]></description>
+            <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">{{ item.author }}</dc:creator>
+            <pubDate>{{ item.pubDate }}</pubDate>
+        </item>
+        {% endfor %}
+    </channel>
+</rss>
