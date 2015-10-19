@@ -21,6 +21,7 @@ $feed = Feed::make(
     [
         'title'       => 'My cool blog about my super afro hair',
         'link'        => 'http://rafa.im',
+        'lang'        => 'en',
         'feedLink'    => 'http://rafa.im/blog/feed',
         'logo'        => 'http://rafa.im/images/logo.png',
         'icon'        => 'http://rafa.im/favicon.ico',
