@@ -3,7 +3,7 @@
     "description": "Feed (Atom and RSS) generator for any framework",
     "keywords": ["laravel", "feed", "atom", "rss"],
     "license": "MIT",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "authors": [
         {
             "name": "Rafael Antonio Gómez Casas",
