@@ -1,54 +1,41 @@
-<?php namespace DotZecker\Larafeed;
+<?php
 
-use URL;
-use View;
-use Config;
-use Response;
-use Validator;
+namespace DotZecker\Larafeed;
+
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use DotZecker\Larafeed\Exceptions\LarafeedException;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\HttpFoundation\Response;
+use Twig_Environment;
+use Twig_Loader_Filesystem;
 
-class Larafeed
+final class Larafeed
 {
+    const DEFAULT_LOCALE = 'en';
+
     public $charset = 'utf-8';
-
     public $lang;
-
     public $title;
-
-    public $description; // Subtitle
-
-    public $pubDate;
-
+    public $description;
+    public $pubDate; // Subtitle
     public $link;
-
     public $feedLink;
-
     public $logo;
-
     public $icon;
-
     public $rights;
-
     public $authors;
-
     public $entries;
+    public $format  = 'atom';
 
-    protected $contentTypes = array(
+    private $twig;
+
+    private $contentTypes = [
         'atom' => 'application/atom+xml',
-        'rss'  => 'application/rss+xml'
-    );
+        'rss'  => 'application/rss+xml',
+    ];
 
-    public $format = 'atom';
-
-    /**
-     * Set the format, fill attributes and instance authors and entries
-     * @param string $format
-     */
-    public function __construct($format = null, array $data = array())
+    public function __construct($format = null, array $data = [])
     {
-        if ($format == 'rss') {
+        if ($format === 'rss') {
             $this->format = $format;
         }
 
@@ -56,32 +43,44 @@ class Larafeed
             $this->{$attribute} = $value;
         }
 
-        $this->authors = new Collection();
-        $this->entries = new Collection();
+        $this->authors = new ArrayCollection();
+        $this->entries = new ArrayCollection();
+
+        $loader     = new Twig_Loader_Filesystem(__DIR__ . '/views/');
+        $this->twig = new Twig_Environment($loader, ['cache' => __DIR__ . '/../cache']);
     }
 
     /**
      * Return new instance of Larafeed
-     * @param  string $format
-     * @return Larafeed
+     *
+     * @param string $format
+     * @param array  $data
+     *
+     * @return self
      */
-    public function make($format = null, array $data = array())
+    public static function make($format = null, array $data = [])
     {
         return new Larafeed($format, $data);
     }
 
     /**
-     * Return new instance of an Entry
+     * Return new Entry instance
+     *
      * @param array $data
+     *
+     * @return Entry
      */
-    public function Entry(array $data = array())
+    public function Entry(array $data = [])
     {
         return new Entry($data);
     }
 
     /**
-     * Prepare and push the entry to the feed (If it is valid)
+     * Prepare and push the entry to the feed (if it's valid)
+     *
      * @param Entry $entry
+     *
+     * @return void
      */
     public function setEntry(Entry $entry)
     {
@@ -89,15 +88,16 @@ class Larafeed
         $entry->prepare();
 
         if ($entry->isValid()) {
-            $this->entries->push($entry);
+            $this->entries->add($entry);
         }
     }
 
     /**
-     * Create a new instanc of Entry and try to set it
+     * Create a new instance of Entry and try to set it
+     *
      * @param array $data
      */
-    public function addEntry(array $data = array())
+    public function addEntry(array $data = [])
     {
         $entry = new Entry($data);
 
@@ -106,48 +106,47 @@ class Larafeed
 
     /**
      * Add an Author to the feed
+     *
      * @param mixed $author It can be an array with name, email and uri,
-     *        or just and string with the name.
+     *                      or just and string with the name.
      */
     public function addAuthor($author)
     {
-        if ( ! is_array($author)) {
-            $author = array('name' => $author);
+        if (!is_array($author)) {
+            $author = ['name' => $author];
         }
 
-        $this->authors->push((object) $author);
+        $this->authors->add((object) $author);
     }
 
     /**
-     * Prepare the feed and if it's valid, renderize it
+     * Prepare the feed and if it's valid, renders it
+     *
      * @return Response
      */
     public function render()
     {
         $this->prepare();
 
-        $view = View::make("larafeed::{$this->format}", array(
-            'feed' => $this
-        ));
+        $view = $this->twig->render(sprintf('%s.twig.html', $this->format), ['feed' => $this]);
 
         // Launch the Atom/RSS view, with 200 status
-        return Response::make($view, 200, array(
-            'Content-Type' => "{$this->getContentType()}; charset={$this->charset}"
-        ));
-
+        return Response::create(
+            $view,
+            200,
+            [
+                'Content-Type' => "{$this->getContentType()}; charset={$this->charset}",
+            ]
+        );
     }
 
-    /**
-     * Validate, autofill and sanitize the entry
-     * @return void
-     */
-    protected function prepare()
+    private function prepare()
     {
         // The date format method to use with Carbon to convert the dates
         $dateFormatMethod = 'to' . strtolower($this->format) . 'String';
 
         // Set the good date format to the publication date
-        if ( ! is_null($this->pubDate)) {
+        if (null !== $this->pubDate) {
             $this->pubDate = Carbon::parse($this->pubDate)->{$dateFormatMethod}();
         }
 
@@ -155,87 +154,28 @@ class Larafeed
         $this->autoFill();
 
         // We ensure that it's plain text
-        $this->title = strip_tags($this->title);
+        $this->title       = strip_tags($this->title);
         $this->description = strip_tags($this->description);
-
-        // Feed validation
-        $this->validate();
     }
 
-    /**
-     * Fill the attributes that can be autogenerated
-     * @return void
-     */
-    protected function autoFill()
+    private function autoFill()
     {
         // The date format method to use with Carbon to convert the dates
         $dateFormatMethod = 'to' . strtolower($this->format) . 'String';
 
         // Set the 'now' date
-        if (is_null($this->pubDate)) {
+        if (null === $this->pubDate) {
             $this->pubDate = Carbon::parse('now')->{$dateFormatMethod}();
         }
 
         // Set laravel's default lang
-        if (is_null($this->lang)) {
-            $this->lang = Config::get('app.locale');
+        if (null === $this->lang) {
+            $this->lang = self::DEFAULT_LOCALE;
         }
-
-        // Set url to homepage (Or whatever it is there)
-        if (is_null($this->link)) {
-            $this->link = URL::to('/');
-        }
-
-        // Set the feed url
-        if (is_null($this->feedLink)) {
-            $this->feedLink = URL::full();
-        }
-
     }
 
-    /**
-     * Get the content type
-     * @return string
-     */
-    public function getContentType()
+    private function getContentType()
     {
         return $this->contentTypes[$this->format];
     }
-
-    /**
-     * Validate the entry
-     * @return boolean
-     */
-    public function validate()
-    {
-        $data = get_object_vars($this);
-
-        $rules = array(
-            'format'      => 'required|in:atom,rss',
-            'charset'     => 'required',
-            'lang'        => 'required',
-            'title'       => 'required',
-            'description' => 'required',
-            'pubDate'     => 'required|date',
-            'feedLink'    => 'required|url',
-            'link'        => 'required|url'
-        );
-
-        if (isset($this->logo)) {
-            $rules['logo'] = 'url';
-        }
-
-        if (isset($this->icon)) {
-            $rules['icon'] = 'url';
-        }
-
-        $validator = Validator::make($data, $rules);
-
-        if ($validator->fails()) {
-            throw new LarafeedException($validator->errors()->first());
-        }
-
-        return true;
-    }
-
 }
