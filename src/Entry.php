@@ -26,7 +26,7 @@ class Entry
     }
 
     /**
-     * Validate, autofill and sanitize the entry
+     * Validate, auto-fill and sanitize the entry
      *
      * @return void
      */
@@ -35,20 +35,16 @@ class Entry
         // The date format method to use with Carbon to convert the dates
         $dateFormatMethod = 'to' . strtolower($this->format) . 'String';
 
-        // Set the good date format to the publication date
         if (null !== $this->pubDate) {
             $this->pubDate = Carbon::parse($this->pubDate)->{$dateFormatMethod}();
         }
 
-        // Set the good date format to the publication last updated date
         if (null !== $this->updated) {
             $this->updated = Carbon::parse($this->updated)->{$dateFormatMethod}();
         }
 
-        // Remove tags (In case it had)
         $this->title = strip_tags($this->title);
 
-        // Fill the attributes that can be auto-generated
         $this->autoFill();
     }
 
@@ -62,16 +58,13 @@ class Entry
         // The date format method to use with Carbon to convert the dates
         $dateFormatMethod = 'to' . strtolower($this->format) . 'String';
 
-        // Set the 'now' date
         if (null === $this->pubDate) {
             $this->pubDate = Carbon::parse('now')->{$dateFormatMethod}();
         }
 
-        // Generate the summary
         if (null === $this->summary) {
             $summary = strip_tags($this->content);
 
-            // @todo: Get lenght by config
             $this->summary = substr($summary, 0, 144) . '...';
         }
     }
