@@ -35,19 +35,16 @@ final class Larafeed
 
     public function __construct($format = null, array $data = [])
     {
-        if ($format === 'rss') {
-            $this->format = $format;
-        }
-
-        foreach ($data as $attribute => $value) {
-            $this->{$attribute} = $value;
-        }
+        $this->setFormat($format);
+        $this->setAttributes($data);
 
         $this->authors = new ArrayCollection();
         $this->entries = new ArrayCollection();
 
-        $loader     = new Twig_Loader_Filesystem(__DIR__ . '/views/');
-        $this->twig = new Twig_Environment($loader, ['cache' => __DIR__ . '/../cache']);
+        $this->twig = new Twig_Environment(
+            new Twig_Loader_Filesystem(__DIR__ . '/views/'),
+            ['cache' => __DIR__ . '/../cache']
+        );
     }
 
     /**
@@ -128,7 +125,6 @@ final class Larafeed
 
         $view = $this->twig->render(sprintf('%s.twig.html', $this->format), ['feed' => $this]);
 
-        // Launch the Atom/RSS view, with 200 status
         return Response::create(
             $view,
             200,
@@ -161,12 +157,10 @@ final class Larafeed
         // The date format method to use with Carbon to convert the dates
         $dateFormatMethod = 'to' . strtolower($this->format) . 'String';
 
-        // Set the 'now' date
         if (null === $this->pubDate) {
             $this->pubDate = Carbon::parse('now')->{$dateFormatMethod}();
         }
 
-        // Set laravel's default lang
         if (null === $this->lang) {
             $this->lang = self::DEFAULT_LOCALE;
         }
@@ -175,5 +169,19 @@ final class Larafeed
     private function getContentType()
     {
         return $this->contentTypes[$this->format];
+    }
+
+    private function setFormat($format)
+    {
+        if ($format === 'rss') {
+            $this->format = $format;
+        }
+    }
+
+    private function setAttributes(array $data)
+    {
+        foreach ($data as $attribute => $value) {
+            $this->{$attribute} = $value;
+        }
     }
 }
