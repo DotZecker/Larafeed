@@ -87,9 +87,7 @@ final class Larafeed
         $entry->format = $this->format;
         $entry->prepare();
 
-        if ($entry->isValid()) {
-            $this->entries->add($entry);
-        }
+        $this->entries->add($entry);
     }
 
     /**
